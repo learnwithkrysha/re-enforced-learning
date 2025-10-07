@@ -2,7 +2,12 @@ import streamlit as st
 import numpy as np
 import random
 
-st.title("Coin Game RL: Collect Coins to Reach 5")
+st.title("Coin Game: Collect Coins to Reach 5")
+st.write("""
+In this game, you start with 0 coins and can collect either 1 or 2  coins at a time.
+          The goal is to reach exactly 5 coins.
+You receive a reward of 1 when you reach 5 coins, and 0 otherwise.      
+         """)
 
 # Parameters
 learning_rate = st.sidebar.slider("Learning Rate", 0.01, 1.0, 0.1)
@@ -21,8 +26,8 @@ if st.button("Run Coin Game Simulation"):
         output += f"\nEpisode {episode + 1}\n"
         while state < 5:
             # Display current coins
-            coins_display = ['C'] * state + ['-'] * (5 - state)
-            output += "".join(coins_display) + "\n"
+            coins_display = ['coin'] * state + ['-'] * (5 - state)
+            output += " ".join(coins_display) + "\n"
 
             # Choose action: epsilon-greedy
             if random.random() < epsilon:
@@ -49,8 +54,18 @@ if st.button("Run Coin Game Simulation"):
 
     # Show final Q-values
     st.subheader("Final Q-values")
+    import pandas as pd
+    
+    q_table_data = []
     for s in range(6):
-        st.write(f"Coins: {s}, Q-values: {Q[s]}")
+        q_table_data.append({
+            "State (Coins)": s,
+            "Collect 1 Coin": round(Q[s][0], 4),
+            "Collect 2 Coins": round(Q[s][1], 4)
+        })
+    
+    q_df = pd.DataFrame(q_table_data)
+    st.table(q_df)
 
     # Show learned policy
     policy = ["Collect 1" if Q[s][0] > Q[s][1] else "Collect 2" for s in range(5)]
